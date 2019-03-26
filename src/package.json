@@ -1,0 +1,30 @@
+{
+  "name": "multi-column-dnd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
+    "@babel/preset-react": "^7.0.0",
+    "autoprefixer": "^9.5.0",
+    "babel-loader": "^8.0.5",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^2.1.1",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "node-sass": "^4.11.0",
+    "postcss-loader": "^3.0.0",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4",
+    "sass-loader": "^7.1.0",
+    "webpack": "^4.29.6"
+  },
+  "scripts": {
+    "build": "./node_modules/.bin/webpack-cli",
+    "watch": "./node_modules/.bin/webpack-cli --watch"
+  },
+  "author": "Caitlin Terzieff",
+  "license": "ISC",
+  "dependencies": {}
+}
