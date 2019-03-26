@@ -48,7 +48,8 @@ window.blocks = [
         parent: 2,
         span: 1,
         id: 4,
-        display: 'block 4'
+        display: 'block 4',
+        order: 3
     },
     {
         parent: 4,

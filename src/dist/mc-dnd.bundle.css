@@ -2,17 +2,50 @@
   height: 100%; }
 
 .mc-dnd-block {
-  border: 1px solid #000000; }
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background: #2DC7FF;
+  border: 1px solid #00ABE7;
+  color: #ffffff;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  z-index: 2; }
+
+.mc-dnd-block.dragging {
+  opacity: 1 !important; }
 
 .mc-dnd-column {
-  border: 1px solid #000000; }
+  background: #0081AF;
+  border: 1px solid #005b7c;
+  z-index: 0; }
+
+.mc-dnd-column.drag-hover {
+  background: #003649;
+  border: 1px solid #001016; }
 
 .mc-dnd-grid {
   display: grid; }
 
 .mc-dnd-header {
-  border: 1px solid #000000;
-  text-align: center; }
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background: #005b7c;
+  border: 1px solid #003649;
+  color: #ffffff;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  text-align: center;
+  z-index: 1; }
 
 * {
   -webkit-box-sizing: border-box;

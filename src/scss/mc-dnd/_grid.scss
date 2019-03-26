@@ -3,11 +3,28 @@
 }
 
 .mc-dnd-block {
-  border: 1px solid #000000;
+  align-items: center;
+  background: #2DC7FF;
+  border: 1px solid #00ABE7;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.mc-dnd-block.dragging {
+  opacity: 1 !important;
 }
 
 .mc-dnd-column {
-  border: 1px solid #000000;
+  background: #0081AF;
+  border: 1px solid darken(#0081AF, 10%);
+  z-index: 0;
+}
+
+.mc-dnd-column.drag-hover {
+  background: darken(#0081AF, 20%);
+  border: 1px solid darken(#0081AF, 30%);
 }
 
 .mc-dnd-grid {
@@ -15,6 +32,12 @@
 }
 
 .mc-dnd-header {
-  border: 1px solid #000000;
+  align-items: center;
+  background: darken(#0081AF, 10%);
+  border: 1px solid darken(#0081AF, 20%);
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
   text-align: center;
+  z-index: 1;
 }
