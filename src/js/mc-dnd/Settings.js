@@ -48,6 +48,12 @@ window.blocks = [
         parent: 2,
         span: 1,
         id: 4,
+        display: 'block 4'
+    },
+    {
+        parent: 4,
+        span: 3,
+        id: 5,
         display: 'block 5'
     },
     {
@@ -55,5 +61,23 @@ window.blocks = [
         span: 1,
         id: 6,
         display: 'block 6'
+    },
+    {
+        parent: 1,
+        span: 1,
+        id: 7,
+        display: 'block 7'
+    },
+    {
+        parent: 6,
+        span: 1,
+        id: 8,
+        display: 'block 8'
+    },
+    {
+        parent: 4,
+        span: 2,
+        id: 9,
+        display: 'block 9'
     }
 ];

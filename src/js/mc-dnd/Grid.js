@@ -1,19 +1,47 @@
 import React, {Component} from "react";
 import settings from './Settings.js';
 
+window.filledPositions = [];
+
 class Grid extends Component {
     constructor(props) {
         super(props);
         this.state = {
             headers: window.headers,
             blocks: window.blocks,
-            filledPositions: []
+            filledPositions: [],
+            numRows: 0
         };
+    }
+
+    componentDidMount() {
+        if (this.state.numRows === 0) {
+            let numRows = this.getRowsNeeded(this.state.blocks, 'parent');
+
+            this.setState({
+                numRows: numRows
+            });
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (window.filledPositions.length > 0) {
+            let numRows = this.getRowsNeeded(window.filledPositions, 'col');
+
+            if (numRows !== this.state.numRows) {
+                this.setState({
+                    numRows: numRows,
+                    filledPositions: window.filledPositions
+                });
+            }
+
+            window.filledPositions = [];
+        }
     }
 
     render() {
         let columnWidth = 100/this.state.headers.length;
-        let numRows = this.getRowsNeeded() + 1; // +1 for header
+        let numRows = this.state.numRows === 0 ? this.getRowsNeeded(this.state.blocks, 'parent') : this.state.numRows;
 
         let gridStyle = {
             gridTemplateColumns: 'repeat(' + this.state.headers.length + ', ' + columnWidth + '%)',
@@ -28,9 +56,9 @@ class Grid extends Component {
         );
     }
 
-    getRowsNeeded() {
-        let parents = this.state.blocks.map(b => {
-            return b.parent;
+    getRowsNeeded(array, attribute) {
+        let result = array.map(b => {
+            return b[attribute];
         });
 
         // Get number of most recurring
@@ -38,34 +66,33 @@ class Grid extends Component {
         let mf = 1;
         let m = 0;
         let item;
-        for (let i=0; i<parents.length; i++)
+        for (let i=0; i<result.length; i++)
         {
-            for (let j=i; j<parents.length; j++)
+            for (let j=i; j<result.length; j++)
             {
-                if (parents[i] === parents[j])
+                if (result[i] === result[j])
                     m++;
                 if (mf<m)
                 {
                     mf=m;
-                    item = parents[i];
+                    item = result[i];
                 }
             }
             m=0;
         }
 
-        return mf;
+        console.log(item+" ( " +mf +" times ), attribute: " + attribute) ;
+        return mf + 1; // +1 for header
     }
 
     renderBlocks() {
-        let filledPostions = [];
-
         return this.state.blocks.map(b => {
             let parentPosition = this.state.headers.map(h => { return h.id; }).indexOf(b.parent) + 1;
             let row = 2;
             let isAvailable = false;
 
             while (!isAvailable) {
-                let checkPosition = filledPostions.filter(cp => {
+                let checkPosition = window.filledPositions.filter(cp => {
                     if (cp.col === parentPosition && cp.row === row)
                         return cp;
                 });
@@ -86,11 +113,26 @@ class Grid extends Component {
             };
 
             let filledPosition = {
+                block: 'block: ' + b.id,
                 col: parentPosition,
                 row: row
             };
 
-            filledPostions.push(filledPosition);
+            window.filledPositions.push(filledPosition);
+
+            if (b.span > 1) {
+                for (let i = 1; i < b.span; i++) {
+                    let filledPosition = {
+                        block: 'block: ' + b.id,
+                        col: parentPosition + i,
+                        row: row
+                    };
+
+                    window.filledPositions.push(filledPosition);
+                }
+            }
+
+            console.log(window.filledPositions);
 
             return (
                 <div className={'mc-dnd-block'} key={'block-' + b.id} style={blockStyle}>
