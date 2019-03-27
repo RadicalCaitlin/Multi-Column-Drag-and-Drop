@@ -6,7 +6,7 @@ var extractTextPlugin = require("extract-text-webpack-plugin");
 module.exports = {
     mode: 'development',
     entry: {
-        "mc-dnd": "./js/main.js"
+        "mc-dnd": "./js/mc-dnd/main.js"
     },
     output: {
         filename: "./[name].bundle.js"
