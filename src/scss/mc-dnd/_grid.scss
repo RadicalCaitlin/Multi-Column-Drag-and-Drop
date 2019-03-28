@@ -12,6 +12,7 @@
   justify-content: center;
   z-index: 2;
 }
+
 .mc-dnd-column {
   background: #0081AF;
   border: 1px solid darken(#0081AF, 10%);
@@ -27,15 +28,8 @@
   border: 1px solid darken(#0081AF, 10%);
 }
 
-.dragging {
-  .mc-dnd-grid-block {
-    opacity: 0.5;
-    z-index: 10;
-  }
-
-  .mc-dnd-grid-block.hover {
-    background: darken(#0081AF, 10%);
-  }
+.mc-dnd-grid-block.hover {
+  background: darken(#0081AF, 10%);
 }
 
 .mc-dnd-header {

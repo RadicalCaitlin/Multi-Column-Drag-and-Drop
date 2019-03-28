@@ -29,11 +29,7 @@
   background: #0081AF;
   border: 1px solid #005b7c; }
 
-.dragging .mc-dnd-grid-block {
-  opacity: 0.5;
-  z-index: 10; }
-
-.dragging .mc-dnd-grid-block.hover {
+.mc-dnd-grid-block.hover {
   background: #005b7c; }
 
 .mc-dnd-header {

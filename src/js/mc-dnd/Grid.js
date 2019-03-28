@@ -13,9 +13,7 @@ class Grid extends Component {
             numRows: 0,
             isDragging: false,
             dragElement: null,
-            dragCol: null,
-            dragRow: null
-
+            dragGridBlock: null
         };
     }
 
@@ -44,26 +42,9 @@ class Grid extends Component {
     }
 
     createBlockElements() {
-        let blocks;
-        let orderedBlockIds = [];
+        let blocks = this.sortBlocks();
 
-        let orderedBlocks = this.state.blocks.filter(b => {
-            if (typeof b.order && b.order !== undefined) {
-                orderedBlockIds.push(b.id);
-                return b;
-            }
-        });
-
-        let unorderedBlocks = this.state.blocks.filter(b => {
-            return !orderedBlockIds.includes(b.id);
-        });
-
-        let orderedBlockElements = this.getBlocks(orderedBlocks, true);
-        let unorderedBlockElements = this.getBlocks(unorderedBlocks, false);
-
-        blocks = orderedBlockElements.concat(unorderedBlockElements);
-
-        return blocks;
+        return this.getBlocks(blocks);
     }
 
     createGridElements() {
@@ -83,6 +64,7 @@ class Grid extends Component {
                          data-col={col}
                          data-row={row}
                          id={'x' + col + 'y' + row}
+                         key={'grid-' + col + row}
                          onDragLeave={(e) => this.handleDragLeaveGrid(e)}
                          onDragOver={(e) => this.handleDragOverGrid(e)}
                          style={style}/>
@@ -128,7 +110,7 @@ class Grid extends Component {
                 colSpan.push(col + i);
             }
 
-            let row = isOrdered ? (b.order + 1) : 2;
+            let row = b.order !== undefined ? (b.order + 1) : 2;
             let isAvailable = false;
 
             while (!isAvailable) {
@@ -170,7 +152,6 @@ class Grid extends Component {
                      id={'block-' + b.id}
                      key={'block-' + b.id}
                      onDrag={(e) => this.handleDragStart(e)}
-                    //onDragLeave={(e) => this.throttle(this.handleDragLeaveBlock(e), 1)}
                      onDragOver={(e) => this.throttle(this.handleDragOverBlock(e), 1)}
                      onDragEnd={(e) => this.handleDragEnd(e)}
                      style={blockStyle}>
@@ -212,15 +193,9 @@ class Grid extends Component {
     }
 
     handleDragEnd(e) {
-        let gridBlocks = document.querySelectorAll('.mc-dnd-grid-block.hover');
-
-        for (let i = 0; i < gridBlocks.length; i++) {
-            gridBlocks[i].classList.remove('hover');
-        }
-
         let element = e.currentTarget;
-        let row = parseInt(element.getAttribute('data-row'));
-        let col = parseInt(element.getAttribute('data-col'));
+        let col = parseInt(this.state.dragGridBlock.getAttribute('data-col'));
+        let row = parseInt(this.state.dragGridBlock.getAttribute('data-row'));
         let movedBlockId = parseInt(element.getAttribute('data-id'));
 
         element.style.gridRowStart = row;
@@ -233,57 +208,35 @@ class Grid extends Component {
 
         for (let i = 0; i < movedElements.length; i++) {
             let blockRow = parseInt(movedElements[i].getAttribute('data-row'));
-            let blockCol = parseInt(movedElements[i].getAttribute('data-col'));
             let blockId = parseInt(movedElements[i].getAttribute('data-id'));
-            let move = movedElements[i].getAttribute('data-lastMove');
 
-            if (move === 'up' || move === 'down') {
-                tempBlocks = tempBlocks.map(b => {
-                    if (b.id === blockId) {
-                        b.order = blockRow - 1;
-                    }
+            tempBlocks = tempBlocks.map(b => {
+                if (b.id === blockId) {
+                    b.order = blockRow - 1;
+                }
 
-                    return b;
-                });
-            } else {
-                tempBlocks = tempBlocks.map(b => {
-                    if (b.id === blockId) {
-                        b.parent = blockCol;
-                        b.order = row - 1;
-                    }
-
-                    return b;
-                });
-            }
+                return b;
+            });
         }
 
         // update block that was dragged
-        if (this.state.dragRow !== null) {
-            tempBlocks = tempBlocks.map(b => {
-                if (b.id === movedBlockId) {
-                    b.order = this.state.dragRow - 1;
-                }
+        tempBlocks = tempBlocks.map(b => {
+            if (b.id === movedBlockId) {
+                b.order = row - 1;
+                b.parent = col;
 
-                return b;
-            });
-        }
+                console.log('block: ' + b.id);
+                console.log('col: ' + col);
+                console.log('row: ' + row);
+            }
 
-        if (this.state.dragCol !== null) {
-            tempBlocks = tempBlocks.map(b => {
-                if (b.id === movedBlockId) {
-                    b.parent = this.state.dragCol;
-                    b.order = row - 1;
-                }
-
-                return b;
-            });
-        }
+            return b;
+        });
 
         // Confirm update
         this.setState({
             blocks: tempBlocks,
-            dragRow: null,
-            dragCol: null,
+            dragGridBlock: null,
             isDragging: false
         }, () => {
             this.updateElements()
@@ -327,40 +280,20 @@ class Grid extends Component {
 
         if (element !== this.state.dragElement) {
             let elementRect = element.getBoundingClientRect();
-            let elementCenter = elementRect.x + (elementRect.width / 2);
             let elementMid = elementRect.y + (elementRect.height / 2);
 
-            let xDifference = Math.abs(e.clientX - elementCenter);
-            let yDifference = Math.abs(e.clientY - elementMid);
-
-            if (xDifference > yDifference) {
-                this.handleHorizontalDragOver(e, element, elementCenter)
-            } else {
-                this.handleVerticalDragOver(e, element, elementMid);
-            }
+            this.handleVerticalDragOver(e, element, elementMid);
 
             element.style.zIndex = 10;
         }
     }
 
     handleDragOverGrid(e) {
-        let dragElement = this.state.dragElement;
-        let span = parseInt(dragElement.getAttribute('data-span'));
-
         let element = e.currentTarget;
-        let startCol = parseInt(element.getAttribute('data-col'));
-        let endCol = startCol + span - 1;
-        let row = parseInt(element.getAttribute('data-col'));
 
-        if (span > 1) {
-            for (let i = startCol; i <= endCol; i++) {
-                let block = document.getElementById('x' + i + 'y' + row);
-
-                if (block) {
-                    block.classList.add('hover');
-                }
-            }
-        }
+        this.setState({
+            dragGridBlock: element
+        });
 
         element.classList.add('hover');
     }
@@ -372,40 +305,8 @@ class Grid extends Component {
         });
     }
 
-    handleHorizontalDragOver(e, element, elementCenter) {
-        let col = parseInt(element.getAttribute('data-col'));
-        let span = parseInt(element.getAttribute('data-span'));
-        let colSpan = [];
-
-        for (let i = col; i < (col + span - 1); i++) {
-            colSpan.push(i);
-        }
-
-        this.setState({
-            dragCol: col
-        });
-
-        if (e.clientY > elementCenter) {
-            col = col - 1;
-            element.setAttribute('data-lastMove', 'left');
-        }
-
-        if (e.clientY < elementCenter) {
-            col = col + 1;
-            element.setAttribute('data-lastMove', 'right');
-        }
-
-        element.style.gridColumnStart = col < 1 ? 1 : col;
-        element.style.gridColumnEnd = 'span ' + span;
-        element.setAttribute('data-col', col);
-    }
-
     handleVerticalDragOver(e, element, elementMid) {
         let row = parseInt(element.getAttribute('data-row'));
-
-        this.setState({
-            dragRow: row
-        });
 
         if (e.clientY > elementMid || row === 2) {
             row = row + 1;
@@ -420,6 +321,32 @@ class Grid extends Component {
         element.style.gridRowStart = row;
         element.style.gridRowEnd = row;
         element.setAttribute('data-row', row);
+    }
+
+    sortBlocks() {
+        let blocks = this.state.blocks;
+        let orderedBlocks = [];
+        let unorderedBlocks = [];
+        let returnBlocks = [];
+
+        blocks.map(b => {
+            if (b.order === undefined)
+                unorderedBlocks.push(b);
+            else
+                orderedBlocks.push(b);
+        });
+
+        blocks = orderedBlocks.concat(unorderedBlocks);
+
+        this.state.headers.map(h => {
+            blocks.map(b => {
+                if (h.id === b.parent) {
+                    return returnBlocks.push(b);
+                }
+            });
+        });
+
+        return returnBlocks;
     }
 
     throttle(func, limit) {
